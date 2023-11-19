@@ -32,6 +32,7 @@ contract ExploitContract {
         for (uint8 i = 0; i < type(uint8).max; i++) {
             if (keccak256(abi.encodePacked(i)) == answerHash) n = i;
         }
+
         return n;
     }
 }
