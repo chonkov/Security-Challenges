@@ -17,6 +17,15 @@ contract TankBankTest is Test {
 
         // Put your solution here
 
+        assertEq(tokenBankChallenge.balanceOf(player), 500000e18);
+        assertEq(tokenBankChallenge.balanceOf(player), tokenBankChallenge.balanceOf(address(this)));
+
+        tokenBankAttacker.attack();
+
+        assertEq(tokenBankChallenge.balanceOf(player), 500000e18);
+        assertEq(tokenBankChallenge.balanceOf(address(this)), 500000e18);
+        assertEq(tokenBankChallenge.balanceOf(address(tokenBankAttacker)), 0);
+
         _checkSolved();
     }
 
